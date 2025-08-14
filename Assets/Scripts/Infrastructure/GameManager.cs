@@ -4,11 +4,14 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    [Header("Prefabs")]
-    [SerializeField] private GameObject customerPrefab;
-
     [Header("Spawn Points")]
     [SerializeField] private Transform customerSpawnPoint;
+
+    [Header("Customer Factory Data")]
+    [SerializeField] private GameObject customerPrefab;
+    [SerializeField] private Transform[] shelves;
+    [SerializeField] private Transform cashier;
+    [SerializeField] private Transform exitPoint;
 
     private void Awake()
     {
@@ -30,7 +33,7 @@ public class GameManager : MonoBehaviour
         var spawnPointManager = new SpawnPointManager();
         ServiceLocator.Register(spawnPointManager);
 
-        var customerFactory = new CustomerFactory(customerPrefab);
+        var customerFactory = new CustomerFactory(customerPrefab, shelves, cashier, exitPoint);
         ServiceLocator.Register(customerFactory);
     }
 

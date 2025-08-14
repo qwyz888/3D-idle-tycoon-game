@@ -4,14 +4,21 @@ using System.Collections;
 
 public class CustomerAI : MonoBehaviour
 {
-    public Transform[] shelves;   
-    public Transform cashier;     
-    public Transform exitPoint;   
+    private Transform[] _shelves;
+    private Transform _cashier;
+    private Transform _exitPoint;   
 
     private NavMeshAgent agent;
     private State currentState;
 
     private enum State { EnterStore, PickItems, GoToCashier, Pay, Exit }
+
+    public void Init(Transform[] shelves, Transform cashier, Transform exitPoint)
+    {
+        _shelves = shelves;
+        _cashier = cashier;
+        _exitPoint = exitPoint;
+    }
 
     private void Start()
     {
@@ -43,9 +50,10 @@ public class CustomerAI : MonoBehaviour
         }
     }
 
+
     private void GoToRandomShelf()
     {
-        Transform shelf = shelves[Random.Range(0, shelves.Length)];
+        Transform shelf = _shelves[Random.Range(0, _shelves.Length)];
         agent.SetDestination(shelf.position);
     }
 
@@ -53,7 +61,7 @@ public class CustomerAI : MonoBehaviour
     {
         yield return new WaitForSeconds(Random.Range(2, 4)); 
         currentState = State.GoToCashier;
-        agent.SetDestination(cashier.position);
+        agent.SetDestination(_cashier.position);
     }
 
     private IEnumerator PayRoutine()
@@ -61,6 +69,6 @@ public class CustomerAI : MonoBehaviour
         yield return new WaitForSeconds(1f); 
         //ServiceLocator.Get<ResourceSystem>().AddResource("Money", Random.Range(5, 15));
         currentState = State.Exit;
-        agent.SetDestination(exitPoint.position);
+        agent.SetDestination(_exitPoint.position);
     }
 }
