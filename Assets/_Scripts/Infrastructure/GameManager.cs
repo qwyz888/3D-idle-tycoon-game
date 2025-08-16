@@ -1,67 +1,74 @@
 ﻿using UnityEngine;
+using _Scripts.SaveLoad;
+using _Scripts.PlayerResources;
+using _Scripts.Infrastracture.SpawnPoint;
+using _Scripts.Infrastracture.Factory;
 
-public class GameManager : MonoBehaviour
+namespace _Scripts.Infrastracture
 {
-    public static GameManager Instance { get; private set; }
-
-    [Header("Spawn Points")]
-    [SerializeField] private Transform customerSpawnPoint;
-
-    [Header("Customer Factory Data")]
-    [SerializeField] private GameObject customerPrefab;
-    [SerializeField] private Transform[] shelves;
-    [SerializeField] private Transform cashier;
-    [SerializeField] private Transform exitPoint;
-
-    private void Awake()
+    public class GameManager : MonoBehaviour
     {
-        if (Instance != null && Instance != this)
+        public static GameManager Instance { get; private set; }
+
+        [Header("Spawn Points")]
+        [SerializeField] private Transform customerSpawnPoint;
+
+        [Header("Customer Factory Data")]
+        [SerializeField] private GameObject customerPrefab;
+        [SerializeField] private Transform[] shelves;
+        [SerializeField] private Transform cashier;
+        [SerializeField] private Transform exitPoint;
+
+        private void Awake()
         {
-            Destroy(gameObject);
-            return;
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+
+            RegisterServices();
+            InitServices();
         }
 
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-
-        RegisterServices();
-        InitServices();
-    }
-
-    private void RegisterServices()
-    {
-        SaveLoadSystem saveLoadSystem = new SaveLoadSystem();
-        ServiceLocator.Register(saveLoadSystem);
-
-        PlayerResources playerResources = new PlayerResources();
-        ServiceLocator.Register(playerResources);
-
-        SpawnPointManager spawnPointManager = new SpawnPointManager();
-        ServiceLocator.Register(spawnPointManager);
-
-        CustomerFactory customerFactory = new CustomerFactory(customerPrefab, shelves, cashier, exitPoint);
-        ServiceLocator.Register(customerFactory);
-    }
-
-    private void InitServices()
-    {
-        foreach (var service in ServiceLocator.GetAllServices())
+        private void RegisterServices()
         {
-            if (service is IGameService gameService)
-                gameService.Init();
-        }
-    }
-    private void Update()
-    {
-        foreach (var service in ServiceLocator.GetAllServices())
-        {
-            if (service is IUpdatableService updatable)
-                updatable.Update();
-        }
-    }
+            SaveLoadSystem saveLoadSystem = new SaveLoadSystem();
+            ServiceLocator.Register(saveLoadSystem);
 
-    private void OnApplicationQuit()
-    {
-        ServiceLocator.Get<SaveLoadSystem>().Save(ServiceLocator.Get<PlayerResources>());
+            PlayerResourcesSystem playerResources = new PlayerResourcesSystem();
+            ServiceLocator.Register(playerResources);
+
+            SpawnPointManager spawnPointManager = new SpawnPointManager();
+            ServiceLocator.Register(spawnPointManager);
+
+            CustomerFactory customerFactory = new CustomerFactory(customerPrefab, shelves, cashier, exitPoint);
+            ServiceLocator.Register(customerFactory);
+        }
+
+        private void InitServices()
+        {
+            foreach (var service in ServiceLocator.GetAllServices())
+            {
+                if (service is IGameService gameService)
+                    gameService.Init();
+            }
+        }
+        private void Update()
+        {
+            foreach (var service in ServiceLocator.GetAllServices())
+            {
+                if (service is IUpdatableService updatable)
+                    updatable.Update();
+            }
+        }
+
+        private void OnApplicationQuit()
+        {
+            ServiceLocator.Get<SaveLoadSystem>().Save(ServiceLocator.Get<PlayerResourcesSystem>());
+        }
     }
 }

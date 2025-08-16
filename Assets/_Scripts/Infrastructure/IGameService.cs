@@ -1,5 +1,8 @@
-﻿public interface IGameService
+﻿namespace _Scripts.Infrastracture
 {
-    void Init();
-  
+    public interface IGameService
+    {
+        void Init();
+
+    }
 }

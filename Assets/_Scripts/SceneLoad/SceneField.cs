@@ -3,7 +3,8 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 
 
-namespace SceneLoad
+
+namespace _Scripts.SceneLoad
 {
     [Serializable]
     public class SceneField

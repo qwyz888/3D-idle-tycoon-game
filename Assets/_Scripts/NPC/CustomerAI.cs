@@ -1,88 +1,91 @@
 ﻿using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
-using System.Linq; 
+using System.Linq;
+using _Scripts.PlayerResources;
+using _Scripts.Infrastracture;
 
-public class CustomerAI : MonoBehaviour
+namespace _Scripts.NPC
 {
-    private Transform[] _shelves;
-    private Transform _cashier;
-    private Transform _exitPoint;
-
-    private NavMeshAgent agent;
-    private State currentState;
-
-    private enum State { EnterStore, PickItems, GoToCashier, Pay, Exit }
-
-    public void Init(Transform[] shelves, Transform cashier, Transform exitPoint)
+    public class CustomerAI : MonoBehaviour
     {
-        _shelves = shelves.Where(s => s != null).ToArray();
-        _cashier = cashier;
-        _exitPoint = exitPoint;
-    }
+        private Transform[] _shelves;
+        private Transform _cashier;
+        private Transform _exitPoint;
 
-    private void Start()
-    {
-        agent = GetComponent<NavMeshAgent>();
-        currentState = State.EnterStore;
+        private NavMeshAgent agent;
+        private State currentState;
 
-        Debug.Log($"[CustomerAI] Shelves count: {_shelves?.Length}");
-        GoToRandomShelf();
-    }
+        private enum State { EnterStore, PickItems, GoToCashier, Pay, Exit }
 
-    private void Update()
-    {
-        if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
+        public void Init(Transform[] shelves, Transform cashier, Transform exitPoint)
         {
-            switch (currentState)
+            _shelves = shelves.Where(s => s != null).ToArray();
+            _cashier = cashier;
+            _exitPoint = exitPoint;
+        }
+
+        private void Start()
+        {
+            agent = GetComponent<NavMeshAgent>();
+            currentState = State.EnterStore;
+            GoToRandomShelf();
+        }
+
+        private void Update()
+        {
+            if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
             {
-                case State.EnterStore:
-                    currentState = State.PickItems;
-                    StartCoroutine(PickItemsRoutine());
-                    break;
+                switch (currentState)
+                {
+                    case State.EnterStore:
+                        currentState = State.PickItems;
+                        StartCoroutine(PickItemsRoutine());
+                        break;
 
-                case State.GoToCashier:
-                    currentState = State.Pay;
-                    StartCoroutine(PayRoutine());
-                    break;
+                    case State.GoToCashier:
+                        currentState = State.Pay;
+                        StartCoroutine(PayRoutine());
+                        break;
 
-                case State.Exit:
-                    Destroy(gameObject);
-                    break;
+                    case State.Exit:
+                        Destroy(gameObject);
+                        break;
+                }
             }
         }
-    }
 
-    private void GoToRandomShelf()
-    {
-        if (_shelves == null || _shelves.Length == 0)
+        private void GoToRandomShelf()
         {
-            Debug.LogWarning("Немає доступних полиць для вибору!");
-            
-            currentState = State.GoToCashier;
-            agent.SetDestination(_cashier.position);
-            return;
+            if (_shelves == null || _shelves.Length == 0)
+            {
+                Debug.LogWarning("Немає доступних полиць для вибору!");
+
+                currentState = State.GoToCashier;
+                agent.SetDestination(_cashier.position);
+                return;
+            }
+
+            Transform shelf = _shelves[Random.Range(0, _shelves.Length)];
+            agent.SetDestination(shelf.position);
         }
 
-        Transform shelf = _shelves[Random.Range(0, _shelves.Length)];
-        agent.SetDestination(shelf.position);
-    }
+        private IEnumerator PickItemsRoutine()
+        {
+            yield return new WaitForSeconds(Random.Range(2, 4));
+            currentState = State.GoToCashier;
+            agent.SetDestination(_cashier.position);
+        }
 
-    private IEnumerator PickItemsRoutine()
-    {
-        yield return new WaitForSeconds(Random.Range(2, 4));
-        currentState = State.GoToCashier;
-        agent.SetDestination(_cashier.position);
-    }
+        private IEnumerator PayRoutine()
+        {
+            yield return new WaitForSeconds(1f);
 
-    private IEnumerator PayRoutine()
-    {
-        yield return new WaitForSeconds(1f);
+            var reward = Random.Range(5, 15);
+            ServiceLocator.Get<PlayerResourcesSystem>().AddMoney(reward);
 
-        var reward = Random.Range(5, 15);
-        ServiceLocator.Get<PlayerResources>().AddMoney(reward);
-
-        currentState = State.Exit;
-        agent.SetDestination(_exitPoint.position);
+            currentState = State.Exit;
+            agent.SetDestination(_exitPoint.position);
+        }
     }
 }

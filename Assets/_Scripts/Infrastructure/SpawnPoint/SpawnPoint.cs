@@ -1,13 +1,16 @@
 ﻿using UnityEngine;
 
-public enum SpawnType
+namespace _Scripts.Infrastracture.SpawnPoint
 {
-    Customer,
-    Worker,
-    Building
-}
+    public enum SpawnType
+    {
+        Customer,
+        Worker,
+        Building
+    }
 
-public class SpawnPoint : MonoBehaviour
-{
-    public SpawnType spawnType;
+    public class SpawnPoint : MonoBehaviour
+    {
+        public SpawnType spawnType;
+    }
 }

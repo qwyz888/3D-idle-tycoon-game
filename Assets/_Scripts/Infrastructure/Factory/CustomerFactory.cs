@@ -1,50 +1,56 @@
 ﻿using UnityEngine;
+using _Scripts.Infrastracture.SpawnPoint;
+using _Scripts.NPC;
 
-public class CustomerFactory : IGameService, IUpdatableService
+namespace _Scripts.Infrastracture.Factory
 {
-    private GameObject _customerPrefab;
-    private float _spawnInterval = 5f;
-    private float _timer;
-   
-    private Transform[] _shelves;
-    private Transform _cashier;
-    private Transform _exitPoint;
-
-
-    public CustomerFactory(GameObject prefab, Transform[] shelves, Transform cashier, Transform exitPoint, float interval = 5f)
+    public class CustomerFactory : IGameService, IUpdatableService
     {
-        _customerPrefab = prefab;
-        _shelves = shelves;
-        _cashier = cashier;
-        _exitPoint = exitPoint;
-        _spawnInterval = interval;
-    }
+        private GameObject _customerPrefab;
+        private float _spawnInterval = 5f;
+        private float _timer;
 
-    public void Init() {
-    }
+        private Transform[] _shelves;
+        private Transform _cashier;
+        private Transform _exitPoint;
 
-    public void Update()
-    {
-        _timer += Time.deltaTime;
-        if (_timer >= _spawnInterval)
+
+        public CustomerFactory(GameObject prefab, Transform[] shelves, Transform cashier, Transform exitPoint, float interval = 5f)
         {
-            SpawnCustomer();
-            _timer = 0f;
+            _customerPrefab = prefab;
+            _shelves = shelves;
+            _cashier = cashier;
+            _exitPoint = exitPoint;
+            _spawnInterval = interval;
         }
-    }
 
-    private void SpawnCustomer()
-    {
-        var point = ServiceLocator.Get<SpawnPointManager>().GetRandomSpawnPoint(SpawnType.Customer);
-        if (point == null)
-            return;
-
-        GameObject newCustomer = GameObject.Instantiate(_customerPrefab, point.position, point.rotation);
-
-        CustomerAI customerAI = newCustomer.GetComponent<CustomerAI>();
-        if (customerAI != null)
+        public void Init()
         {
-            customerAI.Init(_shelves, _cashier, _exitPoint);
+        }
+
+        public void Update()
+        {
+            _timer += Time.deltaTime;
+            if (_timer >= _spawnInterval)
+            {
+                SpawnCustomer();
+                _timer = 0f;
+            }
+        }
+
+        private void SpawnCustomer()
+        {
+            var point = ServiceLocator.Get<SpawnPointManager>().GetRandomSpawnPoint(SpawnType.Customer);
+            if (point == null)
+                return;
+
+            GameObject newCustomer = GameObject.Instantiate(_customerPrefab, point.position, point.rotation);
+
+            CustomerAI customerAI = newCustomer.GetComponent<CustomerAI>();
+            if (customerAI != null)
+            {
+                customerAI.Init(_shelves, _cashier, _exitPoint);
+            }
         }
     }
 }

@@ -1,7 +1,10 @@
 ﻿using System;
 
-[Serializable]
-public struct PlayerResourcesData
+namespace _Scripts.PlayerResources
 {
-    public int Money;
+    [Serializable]
+    public struct PlayerResourcesData
+    {
+        public int Money;
+    }
 }

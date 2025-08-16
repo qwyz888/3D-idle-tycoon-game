@@ -1,26 +1,30 @@
 ﻿using System;
 using UnityEngine;
+using _Scripts.Infrastracture.SpawnPoint;
 
-public class WorkerFactory : IGameService
+namespace _Scripts.Infrastracture.Factory
 {
-    private GameObject workerPrefab;
-
-    public WorkerFactory(GameObject prefab)
+    public class WorkerFactory : IGameService
     {
-        workerPrefab = prefab;
-    }
+        private GameObject workerPrefab;
 
-    public void Init() { }
-
-    public GameObject SpawnWorker(string spawnID)
-    {
-        var point = ServiceLocator.Get<SpawnPointManager>().GetRandomSpawnPoint(SpawnType.Worker);
-        if (point == null)
+        public WorkerFactory(GameObject prefab)
         {
-            Debug.LogError($"Spawn point with ID {spawnID} not found!");
-            return null;
+            workerPrefab = prefab;
         }
 
-        return GameObject.Instantiate(workerPrefab, point.position, point.rotation);
+        public void Init() { }
+
+        public GameObject SpawnWorker(string spawnID)
+        {
+            var point = ServiceLocator.Get<SpawnPointManager>().GetRandomSpawnPoint(SpawnType.Worker);
+            if (point == null)
+            {
+                Debug.LogError($"Spawn point with ID {spawnID} not found!");
+                return null;
+            }
+
+            return GameObject.Instantiate(workerPrefab, point.position, point.rotation);
+        }
     }
 }

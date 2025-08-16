@@ -1,4 +1,7 @@
-﻿public interface IUpdatableService
+﻿namespace _Scripts.Infrastracture
 {
-    void Update();
+    public interface IUpdatableService
+    {
+        void Update();
+    }
 }

@@ -1,19 +1,24 @@
 ﻿using TMPro;
 using UnityEngine;
+using _Scripts.PlayerResources;
+using _Scripts.Infrastracture;
 
-public class MoneyUI : MonoBehaviour
+namespace _Scripts.UI
 {
-    [SerializeField] private TMP_Text moneyText;
-
-    private void Start()
+    public class MoneyUI : MonoBehaviour
     {
-        var resources = ServiceLocator.Get<PlayerResources>();
-        resources.OnMoneyChanged += UpdateUI;
-        UpdateUI(resources.Money);
-    }
+        [SerializeField] private TMP_Text moneyText;
 
-    private void UpdateUI(int newValue)
-    {
-        moneyText.text = $"$ {newValue}";
+        private void Start()
+        {
+            var resources = ServiceLocator.Get<PlayerResourcesSystem>();
+            resources.OnMoneyChanged += UpdateUI;
+            UpdateUI(resources.Money);
+        }
+
+        private void UpdateUI(int newValue)
+        {
+            moneyText.text = $"$ {newValue}";
+        }
     }
 }
